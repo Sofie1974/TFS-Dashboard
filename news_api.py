@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 
 # News API Logic
 base_url = 'https://newsapi.org/v2/everything'
-my_secret_key = "94d7e3d6b82341daa9e9a363b158e1ed"
+my_secret_key = "NEWS_API_KEY"
 
 # News search terms
 news_keywords = [
