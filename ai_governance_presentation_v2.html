@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Politics of AI</title>
+    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+    <link href="[https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lato:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lato:wght@400;700&display=swap)" rel="stylesheet">
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css)">
+    <style>
+/* 1. THE SETUP */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  /* This body style won't be seen in streamlit, but good for standalone viewing */
+  background-color: #1a202c;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin: 0;
+  min-height: 100vh;
+  padding: 0; /* Remove padding for streamlit */
+  place-items: center;
+}
+
+.slide-container {
+  align-items: center;
+  /* Dark background for a high-tech feel */
+  background-color: #050A30;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  height: 720px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 60px;
+  position: relative;
+  width: 100%; /* Make width 100% to fill container */
+  display: none; /* Hide all slides by default */
+}
+
+.slide-container.active-slide {
+  display: flex; /* Show only the active slide */
+}
+
+
+/* 1.1 BACKGROUND STYLING */
+
+.slide-container::before {
+  content: '';
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 0;
+  /* Adding a subtle gradient or pattern */
+  background: linear-gradient(135deg, rgba(5, 10, 48, 0.9), rgba(10, 20, 60, 0.8));
+}
+
+.slide-container>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* Navigation Buttons */
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 245, 212, 0.7); /* Teal */
+  color: #050A30; /* Dark blue */
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1000;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.nav-button:hover {
+  opacity: 1;
+}
+#prev-slide {
+  left: 10px;
+}
+#next-slide {
+  right: 10px;
+}
+
+/* 2. CONSISTENT TYPOGRAPHY */
+
+/* Headings Font - Poppins */
+.slide-container h1,
+.slide-container h2,
+.slide-container h3 {
+  /* White/light text for dark background */
+  color: #FFFFFF;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+/* Body Text Font - Lato */
+.slide-container p,
+.slide-container li,
+.slide-container .subtitle,
+.slide-container .number-label,
+.slide-container .legend li,
+.slide-container .chart-summary,
+.slide-container .bar .label,
+.slide-container th,
+.slide-container td,
+.slide-container .alternating-text-tile p,
+.slide-container .bleed-text-side p {
+  /* Light grey text for readability */
+  color: #E0E0E0;
+  font-family: 'Lato', sans-serif;
+}
+
+/* Consistent Font Sizes */
+.slide-container h1 {
+  font-size: 70px;
+}
+
+.slide-container .slide-title {
+  /* This is an h2 */
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: left;
+  width: 100%;
+  /* Accent color for titles */
+  color: #00F5D4;
+}
+
+.slide-container h3 {
+  font-size: 32px;
+  font-weight: 400;
+  margin-bottom: 15px;
+  /* Lighter blue accent */
+  color: #00A8E8;
+}
+
+/* Unified body text size */
+.slide-container p,
+.slide-container li,
+.slide-container .subtitle,
+.slide-container .legend li,
+.slide-container .chart-summary,
+.slide-container .bar .label,
+.slide-container th,
+.slide-container td,
+.slide-container .alternating-text-tile p,
+.slide-container .bleed-text-side p {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.slide-container .subtitle {
+  font-weight: 400;
+  margin: 20px auto;
+  font-size: 24px;
+  max-width: 80%;
+  color: #E0E0E0;
+}
+
+.slide-container .content-area {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 3. LAYOUT DEFINITIONS */
+
+.title-layout {
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.title-layout h1 {
+    font-size: 80px;
+}
+.title-layout .subtitle {
+    font-size: 28px;
+}
+
+.two-column {
+  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  width: 100%;
+}
+
+.two-column.tiled {
+  align-items: stretch;
+}
+
+/* Tiled Text (using for 2020 vs 2025) */
+.two-column.tiled>div {
+  /* Darker tile background */
+  background-color: #0B1240;
+  border-radius: 12px;
+  border: 1px solid #00A8E8;
+  padding: 40px;
+  text-align: center;
+}
+
+.two-column.tiled h3 {
+  color: #00F5D4;
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.two-column.tiled .icon {
+    font-size: 48px;
+    color: #00A8E8;
+    margin-bottom: 20px;
+}
+
+.two-column.tiled p {
+    font-size: 18px;
+    color: #E0E0E0;
+    text-align: left;
+}
+
+
+.tiled-content {
+  align-items: stretch;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  width: 100%;
+}
+
+.tile {
+  align-items: center;
+  /* Darker tile background */
+  background-color: #0B1240;
+  border-radius: 12px;
+  border: 1px solid #00A8E8;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: flex-start;
+  padding: 30px;
+  text-align: center;
+}
+
+.tile .icon {
+  /* Teal accent for icons */
+  color: #00F5D4;
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.tile h3 {
+    color: #00F5D4;
+    font-size: 24px;
+}
+
+.tile p {
+    font-size: 16px;
+    color: #E0E0E0;
+    text-align: left;
+    line-height: 1.4; /* Tighter line height for more text */
+}
+
+.full-bg-image {
+  background-position: center;
+  background-size: cover;
+  color: #FFFFFF;
+}
+
+/* Adding a scrim for legibility on the background image */
+.full-bg-image .content-overlay {
+  text-align: center;
+  background: rgba(5, 10, 48, 0.7); /* Dark blue scrim */
+  padding: 40px;
+  border-radius: 12px;
+  z-index: 2;
+  width: 90%;
+}
+
+.full-bg-image h1,
+.full-bg-image p {
+  color: #FFFFFF;
+}
+
+
+/* Section Title */
+.section-title-layout {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.section-title-layout h2 {
+  font-size: 70px;
+  margin-bottom: 20px;
+  color: #FFFFFF;
+}
+
+.section-title-layout p {
+  font-size: 24px;
+  margin: 0 auto;
+  max-width: 700px;
+  color: #E0E0E0;
+}
+
+.section-title-layout hr {
+  /* Accent color for the divider */
+  background-color: #00F5D4;
+  border: none;
+  height: 5px;
+  margin: 30px auto;
+  width: 100px;
+}
+
+/* Timeline Layout */
+.timeline-layout {
+  align-items: stretch;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+  padding: 0 20px; /* Add padding */
+}
+
+.timeline-layout .timeline-line {
+  /* Light blue line */
+  background-color: #00A8E8;
+  height: 4px;
+  left: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-2px);
+  width: 100%;
+  z-index: 0;
+}
+
+.timeline-item {
+  position: relative;
+  text-align: center;
+  /* Adjusted width for 5 items */
+  width: 18%;
+}
+
+.timeline-item::after {
+  /* White dot on the line */
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  border: 4px solid #00F5D4; /* Teal border */
+  content: '';
+  height: 20px;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  z-index: 1;
+}
+
+.timeline-item .content-wrapper {
+  left: 0;
+  position: absolute;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.timeline-item:nth-child(odd) .content-wrapper {
+  bottom: 50%;
+  margin-bottom: 25px;
+}
+
+.timeline-item:nth-child(even) .content-wrapper {
+  margin-top: 25px;
+  top: 50%;
+}
+
+.timeline-item h3 {
+  color: #00F5D4;
+  font-size: 24px;
+}
+
+.timeline-item p {
+    font-size: 14px; /* Smaller font for more text */
+    color: #E0E0E0;
+}
+
+
+/* Quote Layout */
+.quote-layout {
+  text-align: center;
+  width: 80%;
+}
+
+.quote-layout blockquote {
+  /* White text */
+  color: #FFFFFF;
+  font-size: 40px; /* Slightly smaller */
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.4;
+  margin: 0 0 30px 0;
+  padding: 0 40px;
+  position: relative;
+}
+
+.quote-layout blockquote::before,
+.quote-layout blockquote::after {
+  /* Accent color quotes */
+  color: #00A8E8;
+  content: '"';
+  font-size: 100px;
+  line-height: 0;
+  position: absolute;
+  opacity: 0.5;
+}
+
+.quote-layout blockquote::before {
+  left: -10px;
+  top: 30px;
+}
+
+.quote-layout blockquote::after {
+  bottom: 10px;
+  right: -10px;
+}
+
+.quote-layout cite {
+  color: #00F5D4; /* Accent color cite */
+  font-size: 20px;
+  font-style: normal;
+  font-family: 'Lato', sans-serif;
+}
+
+/* --- NEW LAYOUT FOR SLIDE 5 --- */
+.center-text-layout {
+  text-align: center;
+  width: 80%; /* Keep it constrained */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.center-text-layout p {
+  font-family: 'Poppins', sans-serif; /* Poppins font */
+  font-size: 40px; /* Large font size */
+  line-height: 1.4;
+  color: #FFFFFF; /* White text */
+  font-weight: 400; /* Regular weight */
+}
+/* --- END NEW LAYOUT --- */
+
+
+/* Q&A Layout */
+.qa-layout {
+  text-align: center;
+  width: 100%;
+  align-self: center;
+}
+
+.qa-layout h2 {
+  font-size: 80px;
+  margin-bottom: 20px;
+  color: #FFFFFF;
+}
+
+.qa-layout p {
+  font-size: 28px;
+  color: #E0E0E0;
+}
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title_Slide (using Full_Background_Image) -->
+<div class="slide-container active-slide full-bg-image" id="slide1" style="background-image: linear-gradient(rgba(5, 10, 48, 0.8), rgba(5, 10, 48, 0.8)), url('http://googleusercontent.com/image_collection/image_retrieval/10202444516949752238');">
+    <div class="title-layout">
+        <h1>The Politics of AI</h1>
+        <p class="subtitle">How Leadership Changes Shaped Global AI Governance (2020-2025)</p>
+    </div>
+</div>
+
+<!-- Slide 2: Section_Title (Part I Intro) -->
+<div class="slide-container" id="slide2">
+    <div class="section-title-layout">
+        <hr>
+        <h2>The Global Shift</h2>
+        <p>From High-Level Principles to Concrete Global Laws in 5 Years</p>
+    </div>
+</div>
+
+<!-- Slide 3: Two_Column_Tiled_Text (Part I Summary) -->
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">From "Readiness" to "Implementation"</h2>
+    <div class="content-area">
+        <div class="two-column tiled">
+            <div>
+                <div class="icon"><i class="fa-solid fa-clipboard-question"></i></div>
+                <h3>2020: The "Readiness" Era</h3>
+                <p>Focus was on high-level ethical principles and assessing national "readiness."<br><br>Leadership was concentrated in North America and Western Europe.<br><br>Most "strategies" were non-binding documents.</p>
+            </div>
+            <div>
+                <div class="icon"><i class="fa-solid fa-gavel"></i></div>
+                <h3>2025: The "Implementation" Era</h3>
+                <p>Focus has shifted to binding legal frameworks, like the EU AI Act, and enforcement.<br><br>Global participation from Africa, Latin America, and Asia.<br><br>Rise of dedicated AI Safety Institutes to test new models.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Section_Title (Part II Intro) -->
+<div class="slide-container" id="slide4">
+    <div class="section-title-layout">
+        <hr>
+        <h2>The Great Divergence</h2>
+        <p>The biggest factor in policy change was not technology, but politics.</p>
+    </div>
+</div>
+
+<!-- Slide 5: Center Text (The Core Thesis) - UPDATED -->
+<div class="slide-container" id="slide5">
+    <h2 class="slide-title">The Core Thesis</h2>
+    <div class="content-area">
+        <!-- Use the new center-text-layout instead of quote-layout -->
+        <div class="center-text-layout">
+            <p>Political stability was the single biggest factor in allowing a country to accelerate its AI governance. Political change forced a re-evaluation, pivot, or a complete reversal.</p>
+            <!-- The blockquote and cite tags are now gone -->
+        </div>
+    </div>
+</div>
+
+<!-- Slide 6: Tiled_Text_With_Icons (The Stability Path) -->
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">The "Stability Path": Policy Acceleration</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-rocket"></i></div>
+                <h3>🇨🇳 China</h3>
+                <p>Stable leadership enabled a rapid move from domestic rules to a global "AI Plus" strategy in 2025.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                <h3>🇮🇳 India</h3>
+                <p>Stable government launched the "$1.2B IndiaAI Mission" to build domestic compute and homegrown models.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3>🇨🇦 Canada</h3>
+                <p>Consistent leadership introduced the binding "AIDA" law and an AI Safety Institute.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-gears"></i></div>
+                <h3>🇫🇷 France</h3>
+                <p>President Macron's re-election ensured policy continuation, launching "Phase 2" of the national plan.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: Tiled_Text_With_Icons (The Change Path) -->
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">The "Change Path": Pivots & Reversals</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-rotate-left"></i></div>
+                <h3>🇺🇸 United States</h3>
+                <p><b>Policy Reversal:</b> A change of administration led to a direct reversal from a "Safety-First" EO to an "Innovation-First" policy.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-compass"></i></div>
+                <h3>🇬🇧 United Kingdom</h3>
+                <p><b>Policy Refocus:</b> A change of party led to a new emphasis on "building public trust" to accelerate adoption.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <h3>🇩🇪 Germany</h3>
+                <p><b>Policy Balancing Act:</b> A new 3-party coalition resulted in a compromise between pro-business and pro-safeguard priorities.</p>
+
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-map-signs"></i></div>
+                <h3>🇯🇵 Japan</h3>
+                <p><b>Policy Pivot:</b> Multiple leadership changes led to a pivot away from EU-style rules to a "pro-innovation" soft law framework.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: Two_Column_Tiled_Text (US vs China) -->
+<div class="slide-container" id="slide8">
+    <h2 class="slide-title">Case Study: The Two Extremes</h2>
+    <div class="content-area">
+        <div class="two-column tiled">
+            <div>
+                <div class="icon"><i class="fa-solid fa-flag-usa"></i></div>
+                <h3>United States (Reversal)</h3>
+                <p><b>2020-2024:</b> Focus on safeguards, culminating in the "Safe, Secure, and Trustworthy AI" Executive Order.<br><br><b>2025:</b> New administration revokes the order, framing safety rules as "barriers to progress."</p>
+            </div>
+            <div>
+                <div class="icon"><i class="fa-solid fa-flag"></i></div>
+                <h3>China (Acceleration)</h3>
+                <p><b>2020-2024:</b> Implemented some of the world's first binding rules for generative AI, prioritizing state control.<br><br><b>2025:</b> Launched "AI Plus" initiative to embed AI in the economy and export its governance model.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 9: Timeline (Adapted for 5 items) -->
+<div class="slide-container" id="slide9">
+    <h2 class="slide-title">Policy & Politics Timeline (2020-2025)</h2>
+    <div class="content-area">
+        <div class="timeline-layout">
+            <div class="timeline-line"></div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>2020</h3>
+                    <p>Global "Principles" Stage. GPAI & OECD launched.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>2021</h3>
+                    <p><b>Change Path:</b> 🇩🇪 Germany's Merkel era ends. 🇯🇵 Japan gets new PM.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>2023</h3>
+                    <p><b>Divergence:</b> 🇺🇸 Biden's "Safety EO." 🇨🇦 Canada's "AIDA."</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>2024</h3>
+                    <p><b>Major Shifts:</b> 🇬🇧 UK Labour wins. Elections. 🇮🇳 India launches "$1.2B Mission."</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="content-wrapper">
+                    <h3>2025</h3>
+                    <p><b>Policy Divergence:</b> 🇺🇸 (Reversal) New EO. 🇬🇧 (Refocus) "Public Trust" plan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 10: Section_Title (TFS Themes) -->
+<div class="slide-container" id="slide10">
+    <div class="section-title-layout">
+        <hr>
+        <h2>Our Mission</h2>
+        <p>Key Governance Themes from The Future Society</p>
+    </div>
+</div>
+
+<!-- Slide 11: Tiled_Text_With_Icons (4 Tiles) -->
+<div class="slide-container" id="slide11">
+    <h2 class="slide-title">Our Thematic Focus</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-landmark"></i></div>
+                <h3>European AI Governance</h3>
+                <p>Facilitating the EU AI Act, focusing on GPAIS, and ensuring alignment with fundamental rights.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-globe"></i></div>
+                <h3>Global AI Governance</h3>
+                <p>Developing corporate governance, safety benchmarks, and advising international bodies (OECD, UNESCO).</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-flag-usa"></i></div>
+                <h3>US AI Governance</h3>
+                <p>Strengthening trust, preparing for AI incidents, and promoting transatlantic coordination on safety.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <h3>AI & The Rule of Law</h3>
+                <p>Ensuring AI development aligns with legal frameworks and democratic principles via The Athens Roundtable.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 12: Quote -->
+<div class="slide-container" id="slide12">
+    <h2 class="slide-title">Why This Matters</h2>
+    <div class="content-area">
+        <div class="quote-layout">
+            <blockquote>"The rule of law is the bedrock of a flourishing society, and is essential for the promotion of our fundamental rights and freedoms, democratic foundations, social justice, security and economic development..."</blockquote>
+            <cite>— The Future Society, AI and The Rule ofLaw</cite>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 13: Q&A -->
+<div class="slide-container" id="slide13">
+    <div class="qa-layout">
+        <h2>Thank You</h2>
+        <p>Questions?</p>
+    </div>
+</div>
+
+<!-- Navigation Buttons -->
+<button id="prev-slide" class="nav-button">&lt;</button>
+<button id="next-slide" class="nav-button">&gt;</button>
+
+<script>
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide-container');
+
+    function showSlide(index) {
+        // Hide all slides
+        slides.forEach((slide) => {
+            slide.classList.remove('active-slide');
+        });
+
+        // Show the correct slide
+        slides[index].classList.add('active-slide');
+
+        // Hide/show buttons at ends
+        const prevButton = document.getElementById('prev-slide');
+        const nextButton = document.getElementById('next-slide');
+
+        if (prevButton) {
+            prevButton.style.display = (index === 0) ? 'none' : 'block';
+        }
+        if (nextButton) {
+            nextButton.style.display = (index === slides.length - 1) ? 'none' : 'block';
+        }
+    }
+
+    // Check if buttons exist before adding listeners
+    const prevButton = document.getElementById('prev-slide');
+    const nextButton = document.getElementById('next-slide');
+
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        });
+    }
+
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        });
+    }
+
+    // Show the first slide on load
+    if (slides.length > 0) {
+        showSlide(currentSlideIndex);
+    }
+</script>
+
+</body>
+</html>

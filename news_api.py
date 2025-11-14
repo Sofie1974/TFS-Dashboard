@@ -1,63 +1,11 @@
 import requests
 import streamlit as st
 import pandas as pd
-from bs4 import BeautifulSoup  # Import BeautifulSoup for scraping
+from bs4 import BeautifulSoup
+import streamlit.components.v1 as components
 
 # Set the page to use the full width
 st.set_page_config(layout="wide")
-
-# News API Logic
-base_url = 'https://newsapi.org/v2/everything'
-my_secret_key = "NEWS_API_KEY"
-
-# News search terms
-news_keywords = [
-    '"The Future Society"',
-    '"The Athens Roundtable"',
-    '"AI and the Rule of Law"',
-    '"The Global Governance of AI Roundtable"',
-    '"GGAR"'
-]
-
-# Build the final search string for the News API
-news_query = " OR ".join(news_keywords) # Use uppercase OR for NewsAPI
-
-parameters = {
-    'q': news_query,
-    'sortBy': 'popularity',
-    'apiKey': my_secret_key
-}
-
-# Set a custom User-Agent to be polite to the API
-news_headers = {'User-agent': 'TFS Dashboard Bot 0.1'}
-
-# Fetch the data from the API
-response = requests.get(base_url, params=parameters, headers=news_headers)
-
-# Reddit API Logic
-reddit_url = "https://www.reddit.com/search.json"
-
-# Reddit search terms
-reddit_keywords = [
-    '"The Future Society"',
-    '"The Athens Roundtable"',
-    '"AI and the Rule of Law"',
-    '"The Global Governance of AI Roundtable"',
-]
-
-# Build the final search string for the Reddit 'API'
-reddit_query = " OR ".join(reddit_keywords) # Reddit is flexible with 'or' or 'OR'
-
-reddit_params = {
-    'q': reddit_query,
-    'sort': 'new'
-}
-
-# Set a custom User-Agent to be polite to the API
-reddit_headers = {'User-agent': 'TFS Dashboard Bot 0.1'}
-
-# Fetch the data from the API
-reddit_response = requests.get(reddit_url, params=reddit_params, headers=reddit_headers)
 
 # Widget title
 st.title('TFS Operations Dashboard')
@@ -111,61 +59,32 @@ st.divider()
 
 # --- Bottom Row: Feeds ---
 
-# Main loop with 3 columns - News, General Reddit, Targeted Reddit, with padding
-col1, col2, col3 = st.columns(3, gap="large")
+# Create 2 columns for our working scrapers
+col1, col2 = st.columns([7, 3], gap="large")
 
-# Column 1 - New Articles
+# --- Column 1: AI Governance Presentation ---
 with col1:
     # Put widget in a bordered container
     with st.container(border=True):
-        if response.status_code == 200:
-            news_data = response.json()
-            st.header("Latest News on AI Governance")
-            # Loop through only the first 5 articles
-            for article in news_data['articles'][:5]:
-                # Start of Card 1
-                st.write(f"**{article['title']}**")
-                # Get Author or 'fallback'
-                author = article.get('author') or article['source']['name']
-                # Get and clean the date
-                raw_date = article['publishedAt']
-                clean_date = raw_date.split('T')[0]
-                # Article by line
-                st.caption(f"By {author} | Published: {clean_date}")
-                # Article link
-                st.write(f"[Read full article]({article['url']})")
-                # Card separator
-                st.divider()
-                # End of Card 1
-        # Status code error for News API
-        else:
-            st.error(f"News API Error: {response.status_code}")
+        st.header("The Politics of AI")
 
-# Column 2 - Reddit mentions
+        # Read the HTML file for the presentation
+        try:
+            # We look for the file in the SAME folder as this .py file
+            with open('ai_governance_presentation_v2.html', 'r', encoding='utf-8') as f:
+                html_data = f.read()
+
+            # Display the presentation
+            # We give it 750px to account for the slide (720px) + padding/buttons
+            components.html(html_data, height=750, scrolling=False)
+
+        except FileNotFoundError:
+            st.error("Could not find the presentation file (ai_governance_presentation_v2.html).")
+            st.warning("Please make sure 'ai_governance_presentation_v2.html' is in the same folder as this .py file.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+#  Column 2: Web Scraper for Brookings
 with col2:
-    # Put widget in a bordered container
-    with st.container(border=True):
-        if reddit_response.status_code == 200:
-            reddit_data = reddit_response.json()
-            st.header("Latest Governance Info from Reddit")
-            # Loop through only the first 5 posts
-            for data in reddit_data['data']['children'][:5]:
-                # Start card 2
-                post_data = data['data']
-                # Post title
-                st.write(f"**{post_data['title']}**")
-                # Post by line
-                st.caption(f"Posted by u/{post_data['author']} in r/{post_data['subreddit']}")
-                # Post link
-                st.write(f"[Read thread](https://www.reddit.com{post_data['permalink']})")
-                # Card divider
-                st.divider()
-        # Status code error for Reddit 'API'
-        else:
-            st.error(f"Reddit API Error: {reddit_response.status_code}")
-
-# --- Column 3: Web Scraper for Brookings ---
-with col3:
     # Put widget in a bordered container
     with st.container(border=True):
         st.header("Brookings AI Blog")
@@ -174,12 +93,9 @@ with col3:
         scraper_url = "https://www.brookings.edu/topic/artificial-intelligence/"
         domain = "https://www.brookings.edu"  # Base domain for relative links
 
-        # Add scraper headers
-        scraper_headers = {'User-agent': 'TFS Dashboard Bot 0.1'}
-
         try:
             # Make the request for the page HTML
-            scraper_response = requests.get(scraper_url, headers=scraper_headers)
+            scraper_response = requests.get(scraper_url)
 
             if scraper_response.status_code == 200:
                 # Get the raw HTML content
@@ -209,11 +125,11 @@ with col3:
                             if not url.startswith('http'):
                                 url = f"{domain}{url}"
 
-                            # --- Start of Scraper Card ---
+                            #  Start of Scraper Card
                             st.write(f"**{title}**")
                             st.write(f"[Read article]({url})")
                             st.divider()
-                            # --- End of Scraper Card ---
+                            #  End of Scraper Card
 
             else:
                 # Error handling for scraper
