@@ -3,52 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TFS Financial Analysis (Export)</title>
+    <title>TFS Financial Analysis</title>
+
+    <!-- *** HERE IS THE FIX: Corrected HTML links *** -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-/* 1. THE SETUP */
+/* 1. THE SETUP (From your working file) */
 
 * {
   box-sizing: border-box;
 }
 
-/* Changed body to a light color for printing/exporting */
 body {
-  background-color: #e2e8f0;
+  background-color: #1a202c;
   display: grid;
   gap: 20px;
   grid-template-columns: 1fr;
   margin: 0;
-  padding: 20px 0;
+  padding: 0; /* Remove padding for streamlit */
   place-items: center;
 }
 
-/* *** THIS IS THE MAIN CHANGE ***
-  All slides are now visible and stacked vertically with a margin.
-  Removed all 'display: none' and 'active-slide' logic.
-*/
 .slide-container {
   align-items: center;
   background-color: #050A30;
   border-radius: 8px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  display: flex; /* Slides are visible by default */
+  display: flex;
   flex-direction: column;
   height: 720px;
   justify-content: center;
   overflow: hidden;
   padding: 60px;
   position: relative;
-  width: 1280px; /* Fixed width */
-  max-width: 100%; /* Ensure it's responsive */
-  margin-bottom: 20px; /* Space between slides */
+  width: 100%; /* Make width 100% to fill container */
+  display: none; /* Hide all slides by default */
+}
+
+.slide-container.active-slide {
+  display: flex; /* Show only the active slide */
 }
 
 
-/* 1.1 BACKGROUND STYLING */
+/* 1.1 BACKGROUND STYLING (From your working file) */
 
 .slide-container::before {
   content: '';
@@ -66,7 +67,35 @@ body {
   z-index: 1;
 }
 
-/* 2. CONSISTENT TYPOGRAPHY */
+/* Navigation Buttons (From your working file) */
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 245, 212, 0.7); /* Teal */
+  color: #050A30; /* Dark blue */
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1000;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.nav-button:hover {
+  opacity: 1;
+}
+#prev-slide {
+  left: 10px;
+}
+#next-slide {
+  right: 10px;
+}
+
+/* 2. CONSISTENT TYPOGRAPHY (From your working file) */
 
 .slide-container h1,
 .slide-container h2,
@@ -102,14 +131,14 @@ body {
   margin-bottom: 40px;
   text-align: left;
   width: 100%;
-  color: #00F5D4; /* Accent color */
+  color: #00F5D4;
 }
 
 .slide-container h3 {
   font-size: 32px;
   font-weight: 400;
   margin-bottom: 15px;
-  color: #00A8E8; /* Lighter blue accent */
+  color: #00A8E8;
 }
 
 .slide-container p,
@@ -142,13 +171,12 @@ body {
   width: 100%;
 }
 
-/* 3. LAYOUT DEFINITIONS */
+/* 3. LAYOUT DEFINITIONS (MERGED FROM BOTH FILES) */
 
 .title-layout {
   text-align: center;
   color: #FFFFFF;
 }
-
 .title-layout h1 {
     font-size: 80px;
 }
@@ -176,18 +204,15 @@ body {
   padding: 30px;
   text-align: center;
 }
-
 .tile .icon {
   color: #00F5D4;
   font-size: 48px;
   margin-bottom: 20px;
 }
-
 .tile h3 {
     color: #00F5D4;
     font-size: 24px;
 }
-
 .tile p {
     font-size: 16px;
     color: #E0E0E0;
@@ -195,7 +220,24 @@ body {
     line-height: 1.4;
 }
 
-/* Bar Chart Layout */
+/* Q&A Layout (From your working file) */
+.qa-layout {
+  text-align: center;
+  width: 100%;
+  align-self: center;
+}
+.qa-layout h2 {
+  font-size: 80px;
+  margin-bottom: 20px;
+  color: #FFFFFF;
+}
+.qa-layout p {
+  font-size: 28px;
+  color: #E0E0E0;
+}
+
+/* *** NEW STYLES (Added for the financial slides) *** */
+
 .chart-container {
   display: flex;
   flex-direction: column;
@@ -203,35 +245,31 @@ body {
   width: 100%;
   padding: 0 5%;
 }
-
 .bar {
   align-items: center;
   display: flex;
   gap: 20px;
-  height: 60px; /* Taller bars */
+  height: 60px;
 }
-
 .bar .label {
   color: #E0E0E0;
-  flex: 0 0 150px; /* Fixed width for labels */
+  flex: 0 0 150px;
   font-weight: 700;
   font-size: 24px;
   text-align: right;
   font-family: 'Poppins', sans-serif;
 }
-
 .bar .bar-inner {
-  background-color: #0B1240; /* Darker bar background */
+  background-color: #0B1240;
   border-radius: 8px;
   border: 1px solid #00A8E8;
   flex-grow: 1;
   height: 100%;
 }
-
 .bar .bar-fill {
   align-items: center;
   border-radius: 8px;
-  color: #050A30; /* Dark text on bar */
+  color: #050A30;
   display: flex;
   font-size: 20px;
   font-weight: 700;
@@ -239,7 +277,6 @@ body {
   justify-content: flex-end;
   padding-right: 15px;
 }
-
 .chart-summary {
   font-style: italic;
   margin-top: 20px;
@@ -248,8 +285,6 @@ body {
   color: #FFFFFF;
   font-size: 20px;
 }
-
-/* Highlighted Numbers Layout */
 .highlight-numbers-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -257,7 +292,6 @@ body {
   width: 100%;
   align-items: center;
 }
-
 .highlight-numbers-layout .number-block {
   text-align: center;
   padding: 40px;
@@ -265,51 +299,35 @@ body {
   background-color: #0B1240;
   border: 1px solid #00A8E8;
 }
-
 .highlight-numbers-layout .number {
   font-size: 120px;
   font-weight: 700;
   font-family: 'Poppins', sans-serif;
   line-height: 1;
 }
-
 .highlight-numbers-layout .number-label {
   font-size: 24px;
   font-weight: 400;
 }
-
-/* Red/Green for numbers */
 .highlight-numbers-layout .number.bad {
     color: #FF4D4D; /* Red */
-}
-.highlight-numbers-layout .number.good {
-    color: #00F5D4; /* Teal */
 }
 .highlight-numbers-layout .number-label.bad {
     color: #FF4D4D;
 }
-.highlight-numbers-layout .number-label.good {
-    color: #00F5D4;
-}
-
-
 .highlight-numbers-layout .context-text {
     font-size: 22px;
     line-height: 1.6;
 }
-
-/* Styled Bullet Points Layout */
 .bullet-list {
   max-width: 900px;
   width: 100%;
 }
-
 .bullet-list ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
 .bullet-list li {
   font-size: 22px;
   gap: 15px;
@@ -317,9 +335,8 @@ body {
   padding-left: 40px;
   position: relative;
 }
-
 .bullet-list i {
-  color: #00F5D4; /* Teal icon */
+  color: #00F5D4;
   font-size: 24px;
   left: 0;
   margin-top: 5px;
@@ -327,85 +344,52 @@ body {
   text-align: center;
   top: 0;
 }
-
 .bullet-list li strong {
   color: #FFFFFF;
   font-weight: 700;
 }
 
-
-/* Q&A Layout */
-.qa-layout {
-  text-align: center;
-  width: 100%;
-  align-self: center;
-}
-
-.qa-layout h2 {
-  font-size: 80px;
-  margin-bottom: 20px;
-  color: #FFFFFF;
-}
-
-.qa-layout p {
-  font-size: 28px;
-  color: #E0E0E0;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 1280px) {
-    .slide-container {
-        width: 100%;
-        padding: 40px 20px;
-        height: auto;
-    }
-    .slide-container h1 { font-size: 50px; }
-    .title-layout h1 { font-size: 60px; }
-    .slide-container .slide-title { font-size: 32px; }
-    .highlight-numbers-layout { grid-template-columns: 1fr; }
-    .tiled-content { flex-direction: column; }
-    .bar .label { font-size: 18px; flex: 0 0 100px; }
-    .bar .bar-fill { font-size: 16px; }
-}
-
+/* *** END OF NEW STYLES *** */
     </style>
 </head>
 <body>
 
+<!--
+  *****************************************************************
+  *** THIS IS THE NEW SLIDE CONTENT FOR THE FINANCIAL ANALYSIS ***
+  *****************************************************************
+-->
 
-<div class="slide-container" id="slide1">
+<!-- Slide 1: Title_Slide -->
+<div class="slide-container active-slide" id="slide1">
     <div class="title-layout">
         <h1>Operations Analysis</h1>
         <p class="subtitle">A Data-Driven Look at TFS Efficiency (2019-2023)</p>
     </div>
 </div>
 
-
+<!-- Slide 2: Bar_Chart_For_Comparisons (Total Expenses) -->
 <div class="slide-container" id="slide2">
     <h2 class="slide-title">Trend 1: Total Expenses Are Climbing</h2>
     <div class="content-area" style="flex-direction: column; justify-content: center;">
         <div class="chart-container">
-
-
-<div class="bar">
+            <!-- 2020: $1,080,778 -->
+            <div class="bar">
                 <div class="label">2020</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 82%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$1,080,778</div></div>
             </div>
-
-
-<div class="bar">
+            <!-- 2021: $642,152 -->
+            <div class="bar">
                 <div class="label">2021</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 49%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$642,152</div></div>
             </div>
-
-
-<div class="bar">
+            <!-- 2022: $1,053,433 -->
+            <div class="bar">
                 <div class="label">2022</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 80%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$1,053,433</div></div>
             </div>
-
-
-<div class="bar">
+            <!-- 2023: $1,193,671 -->
+            <div class="bar">
                 <div class="label">2023</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 91%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$1,193,671</div></div>
             </div>
@@ -414,32 +398,28 @@ body {
     </div>
 </div>
 
-
+<!-- Slide 3: Bar_Chart_For_Comparisons (Program Ratio) -->
 <div class="slide-container" id="slide3">
     <h2 class="slide-title">Trend 2: Program Efficiency is Dropping</h2>
     <div class="content-area" style="flex-direction: column; justify-content: center;">
         <div class="chart-container">
-
-
-<div class="bar">
+            <!-- 2020: 78.5% (Good) -->
+            <div class="bar">
                 <div class="label">2020</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 78.5%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">78.5%</div></div>
             </div>
-
-
-<div class="bar">
+            <!-- 2021: 83.9% (Excellent) -->
+            <div class="bar">
                 <div class="label">2021</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 83.9%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">83.9%</div></div>
             </div>
-
-
-<div class="bar">
+            <!-- 2022: 67.6% (Warning) -->
+            <div class="bar">
                 <div class="label">2022</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 67.6%; background: linear-gradient(90deg, #FF4D4D, #FF8A8A); color: #FFFFFF;">67.6%</div></div>
             </div>
-
-
-<div class="bar">
+            <!-- 2023: 64.8% (Warning) -->
+            <div class="bar">
                 <div class="label">2023</div>
                 <div class="bar-inner"><div class="bar-fill" style="width: 64.8%; background: linear-gradient(90deg, #FF4D4D, #FF8A8A); color: #FFFFFF;">64.8%</div></div>
             </div>
@@ -448,7 +428,7 @@ body {
     </div>
 </div>
 
-
+<!-- Slide 4: Highlighted_Numbers (The "So What?") -->
 <div class="slide-container" id="slide4">
     <h2 class="slide-title">The Core Problem: Overhead vs. Mission</h2>
     <div class="content-area">
@@ -466,7 +446,7 @@ body {
     </div>
 </div>
 
-
+<!-- Slide 5: Tiled_Text_With_Icons (The 3-Step Plan) -->
 <div class="slide-container" id="slide5">
     <h2 class="slide-title">A 3-Step Operations Plan</h2>
     <div class="content-area">
@@ -490,7 +470,7 @@ body {
     </div>
 </div>
 
-
+<!-- Slide 6: Styled_Bullet_Points (Why this matters) -->
 <div class="slide-container" id="slide6">
     <h2 class="slide-title">How This Analysis Fulfills the Role</h2>
     <div class="content-area">
@@ -506,7 +486,7 @@ body {
 </div>
 
 
-
+<!-- Slide 7: Q&A -->
 <div class="slide-container" id="slide7">
     <div class="qa-layout">
         <h2>Thank You</h2>
@@ -514,7 +494,67 @@ body {
     </div>
 </div>
 
+<!-- Navigation Buttons (From your working file) -->
+<button id="prev-slide" class="nav-button">&lt;</button>
+<button id="next-slide" class="nav-button">&gt;</button>
+
+<!--
+  *****************************************************************
+  *** THIS SCRIPT IS 100% COPIED FROM YOUR *WORKING* FILE ***
+  *****************************************************************
+-->
+<script>
+    let currentSlideIndex = 0;
+    const slides = document.querySelectorAll('.slide-container');
+
+    function showSlide(index) {
+        // Hide all slides
+        slides.forEach((slide) => {
+            slide.classList.remove('active-slide');
+        });
+
+        // Show the correct slide
+        slides[index].classList.add('active-slide');
+
+        // Hide/show buttons at ends
+        const prevButton = document.getElementById('prev-slide');
+        const nextButton = document.getElementById('next-slide');
+
+        if (prevButton) {
+            prevButton.style.display = (index === 0) ? 'none' : 'block';
+        }
+        if (nextButton) {
+            nextButton.style.display = (index === slides.length - 1) ? 'none' : 'block';
+        }
+    }
+
+    // Check if buttons exist before adding listeners
+    const prevButton = document.getElementById('prev-slide');
+    const nextButton = document.getElementById('next-slide');
+
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        });
+    }
+
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        });
+    }
+
+    // Show the first slide on load
+    if (slides.length > 0) {
+        showSlide(currentSlideIndex);
+    }
+</script>
 
 </body>
 </html>
-```
