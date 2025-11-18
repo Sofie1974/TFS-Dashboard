@@ -75,7 +75,6 @@ with col1:
                 html_data = f.read()
 
             # Display the presentation
-            # We give it 750px to account for the slide (720px) + padding/buttons
             components.html(html_data, height=750, scrolling=False)
 
         except FileNotFoundError:
@@ -155,8 +154,7 @@ with st.container(border=True):
             html_data = f.read()
 
         # Display the presentation
-        # We give it a large height and scrolling to show all slides
-        components.html(html_data, height=4500, scrolling=True)
+        components.html(html_data, height=750, scrolling=False)
 
     except FileNotFoundError:
         st.error("Could not find the presentation file (tfs_financial_analysis_export.html).")
