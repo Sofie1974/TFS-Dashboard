@@ -138,3 +138,28 @@ with col2:
         except requests.exceptions.RequestException as e:
             # Handle connection errors
             st.error(f"Failed to connect to Brookings: {e}")
+
+# --- Third Row: Financial Analysis Presentation ---
+
+# Add a divider for the new section
+st.divider()
+
+st.header("Operations Analysis: Financial Efficiency (2019-2023)")
+
+# Put widget in a bordered container
+with st.container(border=True):
+    # Read the HTML file for the presentation
+    try:
+        # This looks for your *new* "export" presentation
+        with open('tfs_financial_analysis_export.html', 'r', encoding='utf-8') as f:
+            html_data = f.read()
+
+        # Display the presentation
+        # We give it a large height and scrolling to show all slides
+        components.html(html_data, height=4500, scrolling=True)
+
+    except FileNotFoundError:
+        st.error("Could not find the presentation file (tfs_financial_analysis_export.html).")
+        st.warning("Please make sure 'tfs_financial_analysis_export.html' is in the same folder as this .py file.")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")

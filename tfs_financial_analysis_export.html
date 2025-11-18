@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFS Financial Analysis (Export)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. THE SETUP */
+
+* {
+  box-sizing: border-box;
+}
+
+/* Changed body to a light color for printing/exporting */
+body {
+  background-color: #e2e8f0;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 20px 0;
+  place-items: center;
+}
+
+/* *** THIS IS THE MAIN CHANGE ***
+  All slides are now visible and stacked vertically with a margin.
+  Removed all 'display: none' and 'active-slide' logic.
+*/
+.slide-container {
+  align-items: center;
+  background-color: #050A30;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  display: flex; /* Slides are visible by default */
+  flex-direction: column;
+  height: 720px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 60px;
+  position: relative;
+  width: 1280px; /* Fixed width */
+  max-width: 100%; /* Ensure it's responsive */
+  margin-bottom: 20px; /* Space between slides */
+}
+
+
+/* 1.1 BACKGROUND STYLING */
+
+.slide-container::before {
+  content: '';
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 0;
+  background: linear-gradient(135deg, rgba(5, 10, 48, 0.9), rgba(10, 20, 60, 0.8));
+}
+
+.slide-container>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* 2. CONSISTENT TYPOGRAPHY */
+
+.slide-container h1,
+.slide-container h2,
+.slide-container h3 {
+  color: #FFFFFF;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+.slide-container p,
+.slide-container li,
+.slide-container .subtitle,
+.slide-container .number-label,
+.slide-container .legend li,
+.slide-container .chart-summary,
+.slide-container .bar .label,
+.slide-container th,
+.slide-container td,
+.slide-container .alternating-text-tile p,
+.slide-container .bleed-text-side p {
+  color: #E0E0E0;
+  font-family: 'Lato', sans-serif;
+}
+
+.slide-container h1 {
+  font-size: 70px;
+}
+
+.slide-container .slide-title {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: left;
+  width: 100%;
+  color: #00F5D4; /* Accent color */
+}
+
+.slide-container h3 {
+  font-size: 32px;
+  font-weight: 400;
+  margin-bottom: 15px;
+  color: #00A8E8; /* Lighter blue accent */
+}
+
+.slide-container p,
+.slide-container li,
+.slide-container .subtitle,
+.slide-container .legend li,
+.slide-container .chart-summary,
+.slide-container .bar .label,
+.slide-container th,
+.slide-container td,
+.slide-container .alternating-text-tile p,
+.slide-container .bleed-text-side p {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.slide-container .subtitle {
+  font-weight: 400;
+  margin: 20px auto;
+  font-size: 24px;
+  max-width: 80%;
+  color: #E0E0E0;
+}
+
+.slide-container .content-area {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 3. LAYOUT DEFINITIONS */
+
+.title-layout {
+  text-align: center;
+  color: #FFFFFF;
+}
+
+.title-layout h1 {
+    font-size: 80px;
+}
+.title-layout .subtitle {
+    font-size: 28px;
+}
+
+.tiled-content {
+  align-items: stretch;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  width: 100%;
+}
+
+.tile {
+  align-items: center;
+  background-color: #0B1240;
+  border-radius: 12px;
+  border: 1px solid #00A8E8;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: flex-start;
+  padding: 30px;
+  text-align: center;
+}
+
+.tile .icon {
+  color: #00F5D4;
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.tile h3 {
+    color: #00F5D4;
+    font-size: 24px;
+}
+
+.tile p {
+    font-size: 16px;
+    color: #E0E0E0;
+    text-align: left;
+    line-height: 1.4;
+}
+
+/* Bar Chart Layout */
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  padding: 0 5%;
+}
+
+.bar {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  height: 60px; /* Taller bars */
+}
+
+.bar .label {
+  color: #E0E0E0;
+  flex: 0 0 150px; /* Fixed width for labels */
+  font-weight: 700;
+  font-size: 24px;
+  text-align: right;
+  font-family: 'Poppins', sans-serif;
+}
+
+.bar .bar-inner {
+  background-color: #0B1240; /* Darker bar background */
+  border-radius: 8px;
+  border: 1px solid #00A8E8;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.bar .bar-fill {
+  align-items: center;
+  border-radius: 8px;
+  color: #050A30; /* Dark text on bar */
+  display: flex;
+  font-size: 20px;
+  font-weight: 700;
+  height: 100%;
+  justify-content: flex-end;
+  padding-right: 15px;
+}
+
+.chart-summary {
+  font-style: italic;
+  margin-top: 20px;
+  max-width: 90%;
+  text-align: center;
+  color: #FFFFFF;
+  font-size: 20px;
+}
+
+/* Highlighted Numbers Layout */
+.highlight-numbers-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  width: 100%;
+  align-items: center;
+}
+
+.highlight-numbers-layout .number-block {
+  text-align: center;
+  padding: 40px;
+  border-radius: 12px;
+  background-color: #0B1240;
+  border: 1px solid #00A8E8;
+}
+
+.highlight-numbers-layout .number {
+  font-size: 120px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1;
+}
+
+.highlight-numbers-layout .number-label {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+/* Red/Green for numbers */
+.highlight-numbers-layout .number.bad {
+    color: #FF4D4D; /* Red */
+}
+.highlight-numbers-layout .number.good {
+    color: #00F5D4; /* Teal */
+}
+.highlight-numbers-layout .number-label.bad {
+    color: #FF4D4D;
+}
+.highlight-numbers-layout .number-label.good {
+    color: #00F5D4;
+}
+
+
+.highlight-numbers-layout .context-text {
+    font-size: 22px;
+    line-height: 1.6;
+}
+
+/* Styled Bullet Points Layout */
+.bullet-list {
+  max-width: 900px;
+  width: 100%;
+}
+
+.bullet-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bullet-list li {
+  font-size: 22px;
+  gap: 15px;
+  margin-bottom: 25px;
+  padding-left: 40px;
+  position: relative;
+}
+
+.bullet-list i {
+  color: #00F5D4; /* Teal icon */
+  font-size: 24px;
+  left: 0;
+  margin-top: 5px;
+  position: absolute;
+  text-align: center;
+  top: 0;
+}
+
+.bullet-list li strong {
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+
+/* Q&A Layout */
+.qa-layout {
+  text-align: center;
+  width: 100%;
+  align-self: center;
+}
+
+.qa-layout h2 {
+  font-size: 80px;
+  margin-bottom: 20px;
+  color: #FFFFFF;
+}
+
+.qa-layout p {
+  font-size: 28px;
+  color: #E0E0E0;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1280px) {
+    .slide-container {
+        width: 100%;
+        padding: 40px 20px;
+        height: auto;
+    }
+    .slide-container h1 { font-size: 50px; }
+    .title-layout h1 { font-size: 60px; }
+    .slide-container .slide-title { font-size: 32px; }
+    .highlight-numbers-layout { grid-template-columns: 1fr; }
+    .tiled-content { flex-direction: column; }
+    .bar .label { font-size: 18px; flex: 0 0 100px; }
+    .bar .bar-fill { font-size: 16px; }
+}
+
+    </style>
+</head>
+<body>
+
+
+<div class="slide-container" id="slide1">
+    <div class="title-layout">
+        <h1>Operations Analysis</h1>
+        <p class="subtitle">A Data-Driven Look at TFS Efficiency (2019-2023)</p>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide2">
+    <h2 class="slide-title">Trend 1: Total Expenses Are Climbing</h2>
+    <div class="content-area" style="flex-direction: column; justify-content: center;">
+        <div class="chart-container">
+
+
+<div class="bar">
+                <div class="label">2020</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 82%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$1,080,778</div></div>
+            </div>
+
+
+<div class="bar">
+                <div class="label">2021</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 49%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$642,152</div></div>
+            </div>
+
+
+<div class="bar">
+                <div class="label">2022</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 80%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$1,053,433</div></div>
+            </div>
+
+
+<div class="bar">
+                <div class="label">2023</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 91%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">$1,193,671</div></div>
+            </div>
+        </div>
+        <p class="chart-summary">After a dip in 2021, total expenses have climbed 86% to a new high in 2023.</p>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">Trend 2: Program Efficiency is Dropping</h2>
+    <div class="content-area" style="flex-direction: column; justify-content: center;">
+        <div class="chart-container">
+
+
+<div class="bar">
+                <div class="label">2020</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 78.5%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">78.5%</div></div>
+            </div>
+
+
+<div class="bar">
+                <div class="label">2021</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 83.9%; background: linear-gradient(90deg, #00A8E8, #00F5D4);">83.9%</div></div>
+            </div>
+
+
+<div class="bar">
+                <div class="label">2022</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 67.6%; background: linear-gradient(90deg, #FF4D4D, #FF8A8A); color: #FFFFFF;">67.6%</div></div>
+            </div>
+
+
+<div class="bar">
+                <div class="label">2023</div>
+                <div class="bar-inner"><div class="bar-fill" style="width: 64.8%; background: linear-gradient(90deg, #FF4D4D, #FF8A8A); color: #FFFFFF;">64.8%</div></div>
+            </div>
+        </div>
+        <p class="chart-summary">The "Program Expense Ratio" has dropped for two consecutive years, falling below the 75% donor "gold standard".</p>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">The Core Problem: Overhead vs. Mission</h2>
+    <div class="content-area">
+        <div class="highlight-numbers-layout">
+            <div class="number-block">
+                <div class="number bad">143%</div>
+                <div class="number-label bad">Growth in General & Admin Costs</div>
+            </div>
+            <div class="context-text">
+                <p>From 2021 to 2023, our 'General & Admin' costs grew by 143%.</p>
+                <p>During that same period, our 'Program' (mission) spending only grew by 43%.</p>
+                <p><strong>This tells us our overhead is growing much faster than our impact.</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide5">
+    <h2 class="slide-title">A 3-Step Operations Plan</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3>1. Investigate the "Why"</h3>
+                <p>First, I'll break down that 143% growth in 'General & Admin'. Is it new staff, new software, or one-time costs like retreats? This tells us if the cost is fixed or variable.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                <h3>2. Cross-Reference Impact</h3>
+                <p>I'll cross-reference this data with our public impact (web/news mentions). If our impact *also* grew, we can justify the spending as a successful investment in operations and comms.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                <h3>3. Create Efficiency Plan</h3>
+                <p>Based on findings, I'll create a plan to get us back over 75% efficiency. This includes a tool/software audit, vendor contract reviews, and finding new fundraising opportunities.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">How This Analysis Fulfills the Role</h2>
+    <div class="content-area">
+        <div class="bullet-list">
+            <ul>
+                <li><i class="fa-solid fa-check-circle"></i><strong>"Support in addressing organizational...challenges..."</strong><br>This analysis directly identifies a core organizational challenge and provides a data-backed solution.</li>
+                <li><i class="fa-solid fa-check-circle"></i><strong>"Assist with vendor management..." & "...tech and systems work..."</strong><br>The 3-step plan starts with auditing vendors and tech systems to find cost savings.</li>
+                <li><i class="fa-solid fa-check-circle"></i><strong>"...liaise with the wider team..." & "...finance and fundraising."</strong><br>This connects Finance data to the Comms team's impact and the Fundraising team's goals.</li>
+                <li><i class="fa-solid fa-check-circle"></i><strong>"...a culture of continuous improvement."</strong><br>This entire presentation is an example of continuous improvement: using data to find a problem and propose a solution.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="slide-container" id="slide7">
+    <div class="qa-layout">
+        <h2>Thank You</h2>
+        <p>Questions?</p>
+    </div>
+</div>
+
+
+</body>
+</html>
+```
